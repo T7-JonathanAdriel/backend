@@ -38,3 +38,41 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
   def __str__(self):
     return self.username
+
+class PredefinedResponse(models.Model):
+  """
+  Model to store predefined questions and their corresponding responses.
+  """
+  question = models.CharField(max_length=255, unique=True)
+  response = models.TextField()
+
+  def __str__(self):
+    return self.question
+
+class Chat(models.Model):
+  """
+  Model to represent a chat session between a user and the assistant.
+  """
+  # user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+    return f"Chat {self.id} started at {self.created_at}"
+
+class Message(models.Model):
+  """
+  Model to store individual messages within a chat.
+  """
+  SENDER_CHOICES = [
+    ('user', 'User'),
+    ('assistant', 'Assistant'),
+  ]
+
+  chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='messages')
+  sender = models.CharField(max_length=10, choices=SENDER_CHOICES)
+  content = models.TextField()
+  timestamp = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+    return f"{self.sender}: {self.content[:30]}..."
